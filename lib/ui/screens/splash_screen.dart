@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:taskmanager/ui/controller/auth_controller.dart';
 import 'package:taskmanager/ui/screens/main_bottom_navbar_screen.dart';
@@ -8,6 +9,8 @@ import '../utils/assets_path.dart';
 import '../widgets/Screenbackground.dart';
 
 class SplashScreen extends StatefulWidget {
+  static const String name = '/';
+
   const SplashScreen({super.key});
 
   @override
@@ -27,19 +30,21 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (AuthController.isLoggedIn()) {
       await AuthController.getUserData();
-      Navigator.pushReplacement(
+      /*Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (contex) => const MainBottomNavbarScreen(),
         ),
-      );
+      );*/
+      Get.off(() => const MainBottomNavbarScreen());
     } else {
-      Navigator.pushReplacement(
+      /* Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (contex) => const SignInScreen(),
         ),
-      );
+      );*/
+      Get.off(() => const SignInScreen());
     }
   }
 
@@ -47,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      body: background(
+      body: Background(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

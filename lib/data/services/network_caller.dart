@@ -1,11 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import 'package:http/http.dart';
 import 'package:taskmanager/app.dart';
 import 'dart:convert';
-
 import 'package:taskmanager/data/models/network_response.dart';
 import 'package:taskmanager/ui/controller/auth_controller.dart';
 import 'package:taskmanager/ui/screens/signup_screen.dart';
@@ -115,7 +111,7 @@ class NetworkCaller {
     Navigator.pushAndRemoveUntil(
       // Taskmanagerapp.navigatorkey.currentState!.context,(we can use both but ! ei part ektu confused)
       Taskmanagerapp.navigatorkey.currentContext!,
-      MaterialPageRoute(builder: (contex) => SignUpScreen()),
+      MaterialPageRoute(builder: (context) => const SignUpScreen()),
       (p) => false,
     );
   }

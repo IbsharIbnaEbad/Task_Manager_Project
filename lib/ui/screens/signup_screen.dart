@@ -1,8 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:taskmanager/data/models/network_response.dart';
-import 'package:taskmanager/data/services/network_caller.dart';
-import 'package:taskmanager/data/utils/urls.dart';
+import 'package:get/get.dart';
+import 'package:taskmanager/ui/controller/sign_up_controller.dart';
 import 'package:taskmanager/ui/utils/app_colors.dart';
 import 'package:taskmanager/ui/widgets/Screenbackground.dart';
 import 'package:taskmanager/ui/widgets/center_circular_progress.dart';
@@ -23,13 +22,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _mobileTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
 
-  bool _inprogress = false;
+  final SignUpController _signUpController = Get.find<SignUpController>();
+
+  // bool _inprogress = false;
 
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      body: background(
+      body: Background(
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -37,7 +38,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 84,
                 ),
                 Text(
@@ -136,24 +137,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
               if (value?.isEmpty ?? true) {
                 return 'Enter your Password';
               }
+
+              ///added
+              if (value!.trim().isEmpty) {
+                return 'Password cannot be just spaces';
+              }
               return null;
             },
-
-
           ),
           const SizedBox(
             height: 20,
           ),
-          Visibility(
-            visible: !_inprogress,
-            replacement: const CenterCircularProgress(),
-            child: ElevatedButton(
-              onPressed: _onTapNextButton,
-              child: const Icon(
-                Icons.arrow_circle_right_outlined,
+          GetBuilder<SignUpController>(builder: (controller) {
+            return Visibility(
+              visible: !controller.inprogress,
+              replacement: const CenterCircularProgress(),
+              child: ElevatedButton(
+                onPressed: _onTapNextButton,
+                child: const Icon(
+                  Icons.arrow_circle_right_outlined,
+                ),
               ),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );
@@ -189,29 +195,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _signup() async {
-    _inprogress = true;
-    setState(() {});
+    final bool result = await _signUpController.signup(
+        _emailTEController.text.trim(),
+        _firstNameTEController.text.trim(),
+        _lastNameTEController.text.trim(),
+        _mobileTEController.text.trim(),
+        _passwordTEController.text);
 
-    Map<String, dynamic> requestBody = {
-      "email": _emailTEController.text.trim(),
-      "firstName": _firstNameTEController.text.trim(),
-      "lastName": _lastNameTEController.text.trim(),
-      "mobile": _mobileTEController.text.trim(),
-      "password": _passwordTEController.text,
-      "photo": ""
-    };
-
-    NetworkResponse response = await NetworkCaller.postRequest(
-      url: Urls.registration,
-      body: requestBody,
-    );
-    _inprogress = false;
-    setState(() {});
-    if (response.isSuccess) {
+    if (result) {
       _clearTextFields();
       showSnackBarMessage(context, 'new user created');
     } else {
-      showSnackBarMessage(context, response.errorMessage, true);
+      showSnackBarMessage(context, _signUpController.errorMessage!, true);
     }
   }
 
@@ -224,7 +219,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void _onTapSignIn() {
-    Navigator.pop(context);
+    // Navigator.pop(context);
+    Get.back();
   }
 
   @override

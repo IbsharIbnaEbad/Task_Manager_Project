@@ -3,8 +3,8 @@ import 'package:flutter_svg/svg.dart';
 
 import '../utils/assets_path.dart';
 
-class background extends StatelessWidget {
-  const background({super.key, required this.child});
+class Background extends StatelessWidget {
+  const Background({super.key, required this.child});
 
   final Widget child;
 

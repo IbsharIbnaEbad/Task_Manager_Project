@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:taskmanager/controller_binder.dart';
+import 'package:taskmanager/ui/screens/forgot_password_otp_screen.dart';
+import 'package:taskmanager/ui/screens/main_bottom_navbar_screen.dart';
+import 'package:taskmanager/ui/screens/signin_screen.dart';
 import 'package:taskmanager/ui/screens/splash_screen.dart';
 import 'package:taskmanager/ui/utils/app_colors.dart';
 
@@ -9,7 +14,7 @@ class Taskmanagerapp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       navigatorKey: Taskmanagerapp.navigatorkey,
       debugShowMaterialGrid: false,
       theme: ThemeData(
@@ -19,7 +24,14 @@ class Taskmanagerapp extends StatelessWidget {
         elevatedButtonTheme: _elevatedButtonThemeData(),
       ),
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      initialRoute: '/',
+      initialBinding: ControllerBinder(),
+      routes: {
+        SplashScreen.name : (context) => const SplashScreen(),
+        MainBottomNavbarScreen.name : (context) => const MainBottomNavbarScreen(),
+        SignInScreen.name : (context) => const SignInScreen(),
+        ForgotPasswordOTPScreen.name : (context) => ForgotPasswordOTPScreen(email: Get.arguments),
+      },
     );
   }
 
@@ -28,7 +40,7 @@ class Taskmanagerapp extends StatelessWidget {
       style: ElevatedButton.styleFrom(
           backgroundColor: AppColor.BackgroungClr,
           foregroundColor: AppColor.btnbackground,
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             vertical: 10,
             horizontal: 10,
           ),

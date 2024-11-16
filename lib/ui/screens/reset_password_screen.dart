@@ -1,11 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:taskmanager/data/models/network_response.dart';
-import 'package:taskmanager/data/services/network_caller.dart';
+import 'package:get/get.dart';
+import 'package:taskmanager/ui/controller/reset_password_controller.dart';
 import 'package:taskmanager/ui/screens/signin_screen.dart';
 import 'package:taskmanager/ui/utils/app_colors.dart';
 import 'package:taskmanager/ui/widgets/Screenbackground.dart';
-import 'package:taskmanager/ui/widgets/snack_bar_message.dart'; // Ensure to import NetworkCaller
+import 'package:taskmanager/ui/widgets/snack_bar_message.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String email;
@@ -22,15 +22,19 @@ class ResetPasswordScreen extends StatefulWidget {
 }
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final ResetPasswordController _resetPasswordController =
+      Get.find<ResetPasswordController>();
 
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      body: background(
+      body: Background(
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -68,14 +72,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         TextField(
           controller: _passwordController,
           keyboardType: TextInputType.visiblePassword,
-
           decoration: const InputDecoration(hintText: 'Password'),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         TextField(
           controller: _confirmPasswordController,
           keyboardType: TextInputType.visiblePassword,
-
           decoration: const InputDecoration(hintText: 'Confirm password'),
         ),
         const SizedBox(height: 20),
@@ -110,44 +112,40 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  void _onTapNextButton() async {
+  Future<void> _onTapNextButton() async {
     if (_passwordController.text != _confirmPasswordController.text) {
-      showSnackBarMessage(context, 'Passwords do not match', true);
+      //  showSnackBarMessage(context, 'Passwords do not match', true);
+      Get.snackbar(
+        "Error",
+        "Passwords do not match",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
-
     String email = widget.email;
     String otp = widget.otp;
     String newPassword = _passwordController.text;
 
-    Map<String, dynamic> requestBody = {
-      "email": email,
-      "OTP": otp,
-      "password": newPassword,
-    };
+    final bool result =
+        await _resetPasswordController.onTapNextButton(email, otp, newPassword);
 
-    NetworkResponse response = await NetworkCaller.postRequest(
-      url: 'http://35.73.30.144:2005/api/v1/RecoverResetPassword/',
-      body: requestBody,
-    );
-
-    if (response.isSuccess) {
-      showSnackBarMessage(context, 'Password reset successful');
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => SignInScreen()),
-            (_) => false,
-      );
-    } else {
-      showSnackBarMessage(context, response.errorMessage ?? 'Failed to reset password', true);
+    if (result == false) {
+      showSnackBarMessage(
+          context, _resetPasswordController.errorMessage!, true);
     }
   }
 
   void _onTapSignIn() {
-    Navigator.pushAndRemoveUntil(
+    /*Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => SignInScreen()),
-          (_) => false,
+      (_) => false,
+    );*/
+    Get.offAll(
+      () => const SignInScreen(),
+      opaque: false,
     );
   }
 }

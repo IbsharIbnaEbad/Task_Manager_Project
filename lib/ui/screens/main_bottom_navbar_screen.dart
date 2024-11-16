@@ -4,11 +4,12 @@ import 'package:taskmanager/ui/screens/completed_task_screen.dart';
 import 'package:taskmanager/ui/screens/new_task_screen.dart';
 import 'package:taskmanager/ui/screens/progress_task_screen.dart';
 import 'package:lottie/lottie.dart';
-
 import 'package:taskmanager/ui/utils/assets_path.dart';
 import 'package:taskmanager/ui/widgets/tm_app_bar.dart';
 
 class MainBottomNavbarScreen extends StatefulWidget {
+  static const String name = '/home';
+
   const MainBottomNavbarScreen({super.key});
 
   @override
@@ -17,6 +18,7 @@ class MainBottomNavbarScreen extends StatefulWidget {
 
 class _MainBottomNavbarScreenState extends State<MainBottomNavbarScreen> {
   int _seletedIndex = 0;
+
   final List<Widget> _screens = const [
     NewTaskScreen(),
     CompleteTaskScreen(),
@@ -30,7 +32,7 @@ class _MainBottomNavbarScreenState extends State<MainBottomNavbarScreen> {
       appBar: TMAppBar(),
       body: _screens[_seletedIndex],
       bottomNavigationBar: NavigationBar(
-        //todo : bottom navigation bar and navigation bar same e meterialdesign 3 pattern ana hoiche , navigationbar updated version
+        //todo : bottom navigation bar and navigation bar same e materialDesign 3 pattern ana hoiche , navigation bar updated version
         selectedIndex: _seletedIndex,
         onDestinationSelected: (int index) {
           _seletedIndex = index;
@@ -38,8 +40,8 @@ class _MainBottomNavbarScreenState extends State<MainBottomNavbarScreen> {
         },
 
         destinations: [
-           NavigationDestination(
-             icon: _buildLottieIcon(Assetspath.newIcon),
+          NavigationDestination(
+            icon: _buildLottieIcon(Assetspath.newIcon),
             label: 'new',
           ),
           NavigationDestination(
@@ -50,15 +52,15 @@ class _MainBottomNavbarScreenState extends State<MainBottomNavbarScreen> {
             icon: _buildLottieIcon(Assetspath.cancelIcon),
             label: 'Cancelled ',
           ),
-           NavigationDestination(
-             icon: _buildLottieIcon(Assetspath.progressIcon),
-
-             label: 'Progress',
+          NavigationDestination(
+            icon: _buildLottieIcon(Assetspath.progressIcon),
+            label: 'Progress',
           ),
         ],
       ),
     );
   }
+
   Widget _buildLottieIcon(String assetPath) {
     return Lottie.asset(
       assetPath,

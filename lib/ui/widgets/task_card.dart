@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
-import 'package:taskmanager/data/models/network_response.dart';
-import 'package:taskmanager/data/services/network_caller.dart';
 import 'package:taskmanager/data/models/task_model.dart';
-import 'package:taskmanager/data/utils/urls.dart';
-import 'package:taskmanager/ui/utils/app_colors.dart';
+import 'package:taskmanager/ui/controller/delete_status_controller.dart';
+import 'package:taskmanager/ui/controller/edit_status_controller.dart';
 import 'package:taskmanager/ui/utils/assets_path.dart';
 import 'package:taskmanager/ui/widgets/snack_bar_message.dart';
 
@@ -23,9 +22,12 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> {
+
   String _selectedTaskStatus = '';
-  bool _changeStatusInProgress = false;
-  bool _deleteTaskInProgress = false;
+  /*bool _changeStatusInProgress = false;
+  bool _deleteTaskInProgress = false;*/
+  final EditStatusController _editStatusController = Get.find<EditStatusController>();
+  final DeleteStatusController _deleteStatusController = Get.find<DeleteStatusController>();
 
   @override
   void initState() {
@@ -64,21 +66,29 @@ class _TaskCardState extends State<TaskCard> {
                 _buildTaskStatusChip(),
                 Wrap(
                   children: [
-                    Visibility(
-                      visible: _changeStatusInProgress == false,
-                      replacement: const CircularProgressIndicator(),
-                      child: IconButton(
-                        onPressed: _onTapEditButton,
-                        icon: _buildLottieIcon(Assetspath.editIcon),
-                      ),
+                    GetBuilder<EditStatusController>(
+                        builder: (controller) {
+                          return Visibility(
+                            visible: !controller.inprogress,
+                            replacement: const CircularProgressIndicator(),
+                            child: IconButton(
+                              onPressed: _onTapEditButton,
+                              icon: _buildLottieIcon(Assetspath.editIcon),
+                            ),
+                          );
+                        }
                     ),
-                    Visibility(
-                      visible: !_deleteTaskInProgress,
-                      replacement: const CircularProgressIndicator(),
-                      child: IconButton(
-                        onPressed: _onTapDeleteButton,
-                        icon: _buildLottieIcon(Assetspath.deleteIcon),
-                      ),
+                    GetBuilder<DeleteStatusController>(
+                        builder: (controller) {
+                          return Visibility(
+                            visible: !controller.inprogress,
+                            replacement: const CircularProgressIndicator(),
+                            child: IconButton(
+                              onPressed: _onTapDeleteButton,
+                              icon: _buildLottieIcon(Assetspath.deleteIcon),
+                            ),
+                          );
+                        }
                     ),
                   ],
                 )
@@ -115,7 +125,7 @@ class _TaskCardState extends State<TaskCard> {
                 title: Text(e),
                 selected: _selectedTaskStatus == e,
                 trailing:
-                    _selectedTaskStatus == e ? const Icon(Icons.check) : null,
+                _selectedTaskStatus == e ? const Icon(Icons.check) : null,
               );
             }).toList(),
           ),
@@ -124,7 +134,7 @@ class _TaskCardState extends State<TaskCard> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('Cencel')),
+                child: const Text('Cancel')),
           ],
         );
       },
@@ -132,6 +142,8 @@ class _TaskCardState extends State<TaskCard> {
   }
 
   Future<void> _onTapDeleteButton() async {
+
+    final bool result = await _deleteStatusController.onTapDeleteButton(widget.taskModel.sId!);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -140,30 +152,19 @@ class _TaskCardState extends State<TaskCard> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                /*Navigator.of(context).pop();*/
+                Get.back();
               },
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop();
-
-                _deleteTaskInProgress = true;
-                setState(() {});
-
-                final NetworkResponse response = await NetworkCaller.getRequest(
-                  url: Urls.deleteTask(widget.taskModel.sId!),
-                );
-
-                if (response.isSuccess) {
+                // Navigator.of(context).pop();
+                Get.back();
+                if (result) {
                   widget.onRefreshList();
                 } else {
-                  _deleteTaskInProgress = false;
-                  setState(() {});
-                  showSnackBarMessage(
-                    context,
-                    response.errorMessage,
-                  );
+                  showSnackBarMessage(context, _deleteStatusController.errorMessage!, true);
                 }
               },
               child: const Text('Confirm'),
@@ -194,7 +195,7 @@ class _TaskCardState extends State<TaskCard> {
     return Chip(
       label: Text(
         widget.taskModel.status!,
-        style: TextStyle(
+        style: const TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
@@ -210,18 +211,14 @@ class _TaskCardState extends State<TaskCard> {
   }
 
   Future<void> _changeStatus(String newStatus) async {
-    _changeStatusInProgress = true;
-    setState(() {});
-    final NetworkResponse response = await NetworkCaller.getRequest(
-        url: Urls.changeStatus(widget.taskModel.sId!, newStatus));
-    if (response.isSuccess) {
+
+    final bool result = await _editStatusController.changeStatus(
+        widget.taskModel.sId!, newStatus
+    );
+    if (result) {
       widget.onRefreshList();
-      _changeStatusInProgress = false;
-      setState(() {});
     } else {
-      _changeStatusInProgress = false;
-      setState(() {});
-      showSnackBarMessage(context, response.errorMessage);
+      showSnackBarMessage(context, _editStatusController.errorMessage!, true);
     }
   }
 }

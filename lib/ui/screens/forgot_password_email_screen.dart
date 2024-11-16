@@ -1,9 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:taskmanager/data/models/network_response.dart';
-import 'package:taskmanager/data/services/network_caller.dart';
-import 'package:taskmanager/data/utils/urls.dart';
-import 'package:taskmanager/ui/screens/forgot_password_otp_screen.dart';
+import 'package:get/get.dart';
+import 'package:taskmanager/ui/controller/forgot_password_email_controller.dart';
 import 'package:taskmanager/ui/utils/app_colors.dart';
 import 'package:taskmanager/ui/widgets/Screenbackground.dart';
 import 'package:taskmanager/ui/widgets/center_circular_progress.dart';
@@ -18,14 +16,17 @@ class ForgotPasswordEmailScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordEmailScreenState extends State<ForgotPasswordEmailScreen> {
-  bool _forgetPasswordInProgress = false;
+
+  // bool _forgetPasswordInProgress = false;
+
   final TextEditingController _emailController = TextEditingController();
+  final ForgotPasswordEmailController _forgotPasswordEmailController = Get.find<ForgotPasswordEmailController>();
 
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      body: background(
+      body: Background(
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -76,16 +77,18 @@ class _ForgotPasswordEmailScreenState extends State<ForgotPasswordEmailScreen> {
         const SizedBox(
           height: 20,
         ),
-        Visibility(
-          visible: !_forgetPasswordInProgress,
-          replacement: const CenterCircularProgress(),
-          child: ElevatedButton(
-            onPressed: _onTapNextButton,
-            child: const Icon(
-              Icons.arrow_circle_right_outlined,
+        GetBuilder<ForgotPasswordEmailController>(builder: (controller) {
+          return Visibility(
+            visible: !controller.inprogress,
+            replacement: const CenterCircularProgress(),
+            child: ElevatedButton(
+              onPressed: _onTapNextButton,
+              child: const Icon(
+                Icons.arrow_circle_right_outlined,
+              ),
             ),
-          ),
-        ),
+          );
+        }),
       ],
     );
   }
@@ -116,35 +119,27 @@ class _ForgotPasswordEmailScreenState extends State<ForgotPasswordEmailScreen> {
   Future<void> _onTapNextButton() async {
     String email = _emailController.text.trim();
 
-    // Validate the email format
     if (email.isEmpty) {
-
-      showSnackBarMessage(context, 'Please enter a valid email address',true);
+      /*showSnackBarMessage(context, 'Please enter a valid email address', true);*/
+      Get.snackbar(
+        "Error",
+        "Please enter a valid email address",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
-
     await _sendEmailVerificationRequest(email);
   }
 
   Future<void> _sendEmailVerificationRequest(String email) async {
-    _forgetPasswordInProgress = true;
-    setState(() {});
-
-    final NetworkResponse response = await NetworkCaller.getRequest(
-      url: Urls.recoverEmail(email),
-    );
-
-    if (response.isSuccess) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ForgotPasswordOTPScreen(email: email,)),
-      );
-    } else {
-      showSnackBarMessage(context, response.errorMessage, true);
+    final bool result = await _forgotPasswordEmailController
+        .sendEmailVerificationRequest(email);
+    if (result == false) {
+      showSnackBarMessage(
+          context, _forgotPasswordEmailController.errorMessage!, true);
     }
-
-    _forgetPasswordInProgress = false;
-    setState(() {});
   }
 
 /* void _onTapNextButton() {
@@ -155,6 +150,7 @@ class _ForgotPasswordEmailScreenState extends State<ForgotPasswordEmailScreen> {
   }*/
 
   void _onTapSignIn() {
-    Navigator.pop(context);
+    // Navigator.pop(context);
+    Get.back();
   }
 }
