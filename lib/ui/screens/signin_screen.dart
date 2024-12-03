@@ -62,7 +62,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         child: const Text(
                           'forget your password ',
                           style:
-                              TextStyle(letterSpacing: 0.5, color: Colors.grey),
+                          TextStyle(letterSpacing: 0.5, color: Colors.grey),
                         ),
                       ),
                       _buildSignUpSection(),
@@ -80,7 +80,6 @@ class _SignInScreenState extends State<SignInScreen> {
   void _onTapForgetPasswordButton() {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => ForgotPasswordEmailScreen()));
-    _clearTextFields();
   }
 
   Widget _buildsigninform() {
@@ -167,7 +166,6 @@ class _SignInScreenState extends State<SignInScreen> {
       return;
     }
     _signIn();
-
   }
 
   Future<void> _signIn() async {
@@ -179,7 +177,7 @@ class _SignInScreenState extends State<SignInScreen> {
     };
 
     final NetworkResponse response =
-        await NetworkCaller.postRequest(url: Urls.login, body: requestbody);
+    await NetworkCaller.postRequest(url: Urls.login, body: requestbody);
     _inprogress = false;
     setState(() {});
     if (response.isSuccess) {
@@ -187,11 +185,10 @@ class _SignInScreenState extends State<SignInScreen> {
       await AuthController.saveAccessToken(loginModel.token!);
       await AuthController.saveUserData(loginModel.data!);
 
-      _clearTextFields();
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => MainBottomNavbarScreen()),
-          (value) => false);
+              (value) => false);
     } else {
       showSnackBarMessage(context, response.errorMessage, true);
     }
@@ -204,12 +201,6 @@ class _SignInScreenState extends State<SignInScreen> {
         builder: (context) => const SignUpScreen(),
       ),
     );
-    _clearTextFields();
   }
-  void _clearTextFields() {
-    _emailTEController.clear();
-    _passwordTEController.clear();
-  }
-
-
 }
+
