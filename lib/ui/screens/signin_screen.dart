@@ -80,6 +80,7 @@ class _SignInScreenState extends State<SignInScreen> {
   void _onTapForgetPasswordButton() {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => ForgotPasswordEmailScreen()));
+    _clearTextFields();
   }
 
   Widget _buildsigninform() {
@@ -166,6 +167,7 @@ class _SignInScreenState extends State<SignInScreen> {
       return;
     }
     _signIn();
+
   }
 
   Future<void> _signIn() async {
@@ -185,6 +187,7 @@ class _SignInScreenState extends State<SignInScreen> {
       await AuthController.saveAccessToken(loginModel.token!);
       await AuthController.saveUserData(loginModel.data!);
 
+      _clearTextFields();
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => MainBottomNavbarScreen()),
@@ -201,5 +204,12 @@ class _SignInScreenState extends State<SignInScreen> {
         builder: (context) => const SignUpScreen(),
       ),
     );
+    _clearTextFields();
   }
+  void _clearTextFields() {
+    _emailTEController.clear();
+    _passwordTEController.clear();
+  }
+
+
 }
