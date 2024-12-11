@@ -24,7 +24,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
-  bool _inprogress   = false;
+  bool _inprogress = false;
 
   @override
   Widget build(BuildContext context) {
